@@ -250,17 +250,6 @@ def set_sidebar():
             bar_charts()
             pie_charts()
         
-
-
-        
-        
-                
-                
-                        
-
-                
-                
-            
         
         if selected == 'Predict Value':
             st.markdown('<p style="color: black; font-size:45px; font-weight:bold">Predicting the Resale Price</p>',unsafe_allow_html=True)
