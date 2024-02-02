@@ -25,10 +25,12 @@ towns=['Select','ANG MO KIO','YISHUN','SENGKANG','HOUGANG']
 
 streets=['Select','ANG MO KIO AVE 3' ,'YISHUN ST 31' ,'COMPASSVALE RD' ,'BUANGKOK CRES' ,'COMPASSVALE LANE']
 
-flat_types =['1 ROOM', '3 ROOM', '4 ROOM', '5 ROOM', '2 ROOM', 'EXECUTIVE',
-            'MULTI GENERATION', 'MULTI-GENERATION']
+flat_type_dict ={'3 ROOM':2,'2 ROOM':1,'1 ROOM':0,'4 ROOM':3, '5 ROOM':4,  'EXECUTIVE':5,
+            'MULTI GENERATION':6}
 
 block_no =['564' ,'333B','257C' ,'998A' ,'207D']
+
+flat_model_dict={'Improved':5,'New Generation':12,'2-room':0,'Adjoined flat':2,'Standard':17,'Simplified':16}
 
 #------------------------------------------------------------------------#
 
@@ -260,7 +262,8 @@ def set_sidebar():
                     with col1:
                         select_town = st.selectbox(label='Town', options=towns)
                         select_street_name = st.selectbox(label='Street Name', options=streets)
-                        select_flat_type = st.selectbox(label='Flat Type',options=flat_types)
+                        select_flat_model = st.selectbox(label='Flat Model', options=list(flat_model_dict.keys()))
+                        select_flat_type = st.selectbox(label='Flat Type',options=list(flat_type_dict.keys()))
                         block = st.selectbox(label='Block Number',options=block_no)
                     with col3:
                         floor_area_sqm = st.number_input('Floor Area (Per Square Meter)', min_value=1.0, max_value=500.0)
@@ -269,7 +272,7 @@ def set_sidebar():
                         column1.write("Select the Storey Range")
                         storey_min = column2.text_input('Min')
                         storey_max = column3.text_input('Max')
-                    print(select_street_name)
+                    
                     # -----Submit Button for PREDICT RESALE PRICE-----
                     submit_button = st.form_submit_button(label="PREDICT RESALE PRICE")
 
@@ -319,10 +322,11 @@ def set_sidebar():
                             # -----Getting distance from CDB (Central Business District)-----
                             cbd_dist = geodesic(origin, (1.2830, 103.8513)).meters  # CBD coordinates
 
+                            
                             # -----Sending the user enter values for prediction to our model-----
                             new_sample = np.array(
-                                [[np.log(floor_area_sqm), lease_remain_years,cbd_dist, min_dist_mrt,np.log(storey_median)]])
-                            new_sample = scaler_loaded.transform(new_sample[:, :5])
+                                [[flat_type_dict[select_flat_type], flat_model_dict[select_flat_model], np.log(floor_area_sqm), lease_remain_years,cbd_dist, min_dist_mrt,np.log(storey_median)]])
+                            new_sample = scaler_loaded.transform(new_sample[:, :7])
 
                             new_pred = loaded_model.predict(new_sample)[0]
                             resale_price=str(np.exp(new_pred))
